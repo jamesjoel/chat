@@ -1,7 +1,7 @@
 
 var LocalStrategy   = require('passport-local').Strategy;
 
-// var FacebookStrategy = require('passport-facebook').Strategy;
+var FacebookStrategy = require('passport-facebook').Strategy;
 
 // var configAuth = require('./auth') ;
 
@@ -22,32 +22,6 @@ module.exports = function(passport) {
         passwordField : 'password',
         passReqToCallback : true // allows us to pass back the entire request to the callback
     },
-
-    // passport.use(new FacebookStrategy({
-    //             clientID : '364517680663204',
-    //             clientSecret : 'da09656ab6f17ad446bf071f47be4356',
-    //             callbackURL : 'http://localhost:3000/auth/facebook/callback',
-    //             profileFields: ['id', 'displayName', 'photos', 'email']
-    //         }, 
-    //         function(token, refreshToken, profile, done){
-    //             process.nextTick(function(){
-    //                 User.findOne({ 'facebook.id' : profile.id }, function(err, user){
-    //                     if(err){
-    //                         return done(err);
-    //                     }
-    //                     if(user){
-    //                         return done(null, user);
-    //                         //User found
-    //                     }else{
-    //                         User.insert({}, )
-    //                     }
-
-    //                 })
-    //             })
-    //         }
-    //     )),
-
-
     function(req, email, password, done) { // callback with email and password from our form
 
         // find a user whose email is the same as the forms email
@@ -59,10 +33,19 @@ module.exports = function(passport) {
             if(!user){
                 return done(null, false, req.flash('loginMessage', 'No user found.')); // req.flash is the way to set flashdata using connect-flash
             }
-            if(!User.validPassword(password, user)){
-                return done(null, false, req.flash('loginMessage', 'Oops! Wrong password'));
+            else{
+                if(user.password == password){
+                    return done(null, user);
+                }
+                else
+                {
+                    return done(null, false, req.flash('loginMessage', 'Oops! Wrong password'));
+                }
             }
-            return done(null, user);
+            // if(!User.validPassword(password, user)){
+            //     return done(null, false, req.flash('loginMessage', 'Oops! Wrong password'));
+            // }
+            
             
             // if there are any errors, return the error before anything else
             // if (err)
@@ -79,9 +62,23 @@ module.exports = function(passport) {
 
             // // all is well, return successful user
             // return done(null, user);
-        });
-
+        })
     }));
+    passport.use('facebook', new FacebookStrategy({
+                clientID : '364517680663204',
+                clientSecret : 'da09656ab6f17ad446bf071f47be4356',
+                callbackURL : 'http://localhost:3000/login/facebook/callback',
+                profileFields: ['id', 'displayName', 'photos', 'email']
+    }, function(access_token, refresh_token, profile, done){
+        process.nextTick(function(){
+            console.log("--------------------",profile);
+            done(null, profile);
+        })
+    }));
+
+
+
+
 
  
 

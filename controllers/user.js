@@ -41,6 +41,22 @@ router.post('/', passport.authenticate('local-login', {
 //     }));
 
 
+router.get('/login/facebook', passport.authenticate('facebook', { 
+        scope : 'email' 
+    }
+));
+ 
+// handle the callback after facebook has authenticated the user
+router.get('/login/facebook/callback',  passport.authenticate('facebook', {
+    successRedirect : '/profile',
+    failureRedirect : '/'
+  })
+);
+
+
+
+
+
 
  function isLoggedIn(req, res, next) {
 
